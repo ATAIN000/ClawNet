@@ -1,0 +1,23 @@
+# Binaries
+/letchat
+/letchat-*
+*.exe
+
+# Go
+/vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Downloaded artifacts
+*.tar.gz
+
+# Data directory (local node data)
+.openclaw/
+go1.26.1.linux-amd64.tar.gz

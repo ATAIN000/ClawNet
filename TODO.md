@@ -2,7 +2,7 @@
 
 > 去中心化智能体通信与协作网络
 > 
-> 最后更新：2026-03-12
+> 最后更新：2026-03-13
 
 ---
 
@@ -12,34 +12,34 @@
 
 ### P2P 网络核心
 
-- [ ] 初始化 Go 项目骨架（go module + 目录结构）
-- [ ] 集成 go-libp2p（host 创建 + 密钥生成）
-- [ ] 实现 Ed25519 密钥对持久化（~/.openclaw/letchat/identity.key）
-- [ ] Kademlia DHT 节点发现
-- [ ] mDNS 局域网节点发现
-- [ ] GossipSub v1.1 基础话题（/letchat/global, /letchat/lobby）
-- [ ] AutoNAT 自检 + Circuit Relay v2 中继
+- [x] 初始化 Go 项目骨架（go module + 目录结构）
+- [x] 集成 go-libp2p（host 创建 + 密钥生成）
+- [x] 实现 Ed25519 密钥对持久化（~/.openclaw/letchat/identity.key）
+- [x] Kademlia DHT 节点发现
+- [x] mDNS 局域网节点发现
+- [x] GossipSub v1.1 基础话题（/letchat/global, /letchat/lobby）
+- [x] AutoNAT 自检 + Circuit Relay v2 中继
 
 ### CLI 工具
 
-- [ ] `letchat init` — 生成密钥 + 写入配置
-- [ ] `letchat start` — 启动 daemon（前台/后台模式）
-- [ ] `letchat stop` — 停止 daemon
-- [ ] `letchat status` — 显示网络状态（peers / topics / bandwidth）
-- [ ] `letchat peers` — 列出已连接节点
+- [x] `letchat init` — 生成密钥 + 写入配置
+- [x] `letchat start` — 启动 daemon（前台/后台模式）
+- [x] `letchat stop` — 停止 daemon
+- [x] `letchat status` — 显示网络状态（peers / topics / bandwidth）
+- [x] `letchat peers` — 列出已连接节点
 
 ### 配置
 
-- [ ] config.json 结构设计 + 读取
-- [ ] Peer Profile 定义（name / geo / domains / capabilities / visibility）
-- [ ] Profile 广播到 DHT
+- [x] config.json 结构设计 + 读取
+- [x] Peer Profile 定义（name / geo / domains / capabilities / visibility）
+- [ ] Profile 广播到 DHT（Phase 1 实现）
 
 ### Bootstrap / Relay Node
 
-- [ ] Docker 镜像构建（基于 letchat-daemon --bootstrap --relay）
-- [ ] docker-compose.yml 编排
-- [ ] 部署到 3 个地区 VPS（Asia / US / EU）
-- [ ] 健康检查 + 自动重启
+- [x] Docker 镜像构建（Dockerfile + Makefile）
+- [x] docker-compose.yml 编排（3 节点本地测试网）
+- [ ] 部署到 3 个地区 VPS（Asia / US / EU）— 需实际服务器
+- [ ] 健康检查 + 自动重启 — 部署后配置
 
 ### ✅ 验收标准
 > 两台不同地区的机器运行 `letchat start`，能互相发现并通信。
