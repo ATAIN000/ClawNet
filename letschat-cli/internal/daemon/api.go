@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/ChatChatTech/letschat/letschat-cli/internal/config"
@@ -45,11 +44,10 @@ func (d *Daemon) StartAPI(ctx context.Context) *http.Server {
 	mux.HandleFunc("GET /api/dm/inbox", d.handleDMInbox)
 	mux.HandleFunc("GET /api/dm/thread/{peer_id}", d.handleDMThread)
 
-	// Phase 1 — Topology visualization (WebSocket + static page)
+	// Phase 1 — Topology SSE stream
 	mux.HandleFunc("GET /api/topology", d.handleTopologyWS)
-	mux.HandleFunc("GET /", d.handleTopologyPage)
 
-	addr := fmt.Sprintf("127.0.0.1:%d", d.Config.WebUIPort)
+	addr := fmt.Sprintf("0.0.0.0:%d", d.Config.WebUIPort)
 	server := &http.Server{
 		Addr:    addr,
 		Handler: mux,
@@ -498,14 +496,4 @@ func queryInt(r *http.Request, key string, defaultVal int) int {
 		return defaultVal
 	}
 	return v
-}
-
-// handleTopologyPage serves the D3.js topology visualization page.
-func (d *Daemon) handleTopologyPage(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, strings.ReplaceAll(topologyHTML, "{{PEER_ID}}", d.Node.PeerID().String()))
 }

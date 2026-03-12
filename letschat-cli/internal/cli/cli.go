@@ -31,6 +31,8 @@ func Execute() error {
 		return cmdStatus()
 	case "peers":
 		return cmdPeers()
+	case "topo":
+		return cmdTopo()
 	case "version":
 		fmt.Printf("letchat v%s\n", daemon.Version)
 		return nil
@@ -51,6 +53,7 @@ Usage:
   letchat stop              Stop a running daemon
   letchat status            Show network status
   letchat peers             List connected peers
+  letchat topo              Show network topology (ASCII)
   letchat version           Show version
 
 API runs on http://localhost:3847 when daemon is active.`)
@@ -138,6 +141,106 @@ func cmdStatus() error {
 
 func cmdPeers() error {
 	return apiGet("/api/peers")
+}
+
+func cmdTopo() error {
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	base := fmt.Sprintf("http://127.0.0.1:%d", cfg.WebUIPort)
+
+	// Fetch status
+	statusResp, err := http.Get(base + "/api/status")
+	if err != nil {
+		return fmt.Errorf("cannot connect to daemon: %w", err)
+	}
+	defer statusResp.Body.Close()
+	var status map[string]any
+	json.NewDecoder(statusResp.Body).Decode(&status)
+
+	// Fetch peers
+	peersResp, err := http.Get(base + "/api/peers")
+	if err != nil {
+		return fmt.Errorf("cannot connect to daemon: %w", err)
+	}
+	defer peersResp.Body.Close()
+	var peers []map[string]string
+	json.NewDecoder(peersResp.Body).Decode(&peers)
+
+	selfID, _ := status["peer_id"].(string)
+	version, _ := status["version"].(string)
+
+	// Render ASCII topology
+	fmt.Println()
+	fmt.Println("  ┌─────────────────────────────────────────────────────────┐")
+	fmt.Println("  │              🌐 LetChat Network Topology                │")
+	fmt.Println("  └─────────────────────────────────────────────────────────┘")
+	fmt.Println()
+
+	shortSelf := selfID
+	if len(shortSelf) > 16 {
+		shortSelf = shortSelf[:16]
+	}
+	fmt.Printf("  ★ [%s..] (you)  v%s\n", shortSelf, version)
+
+	if len(peers) == 0 {
+		fmt.Println("  │")
+		fmt.Println("  └── (no peers connected)")
+	} else {
+		for i, p := range peers {
+			pid := p["peer_id"]
+			addrs := p["addrs"]
+			shortPeer := pid
+			if len(shortPeer) > 16 {
+				shortPeer = shortPeer[:16]
+			}
+			connector := "├"
+			prefix := "│"
+			if i == len(peers)-1 {
+				connector = "└"
+				prefix = " "
+			}
+			fmt.Printf("  %s── ● [%s..]\n", connector, shortPeer)
+			pubAddr := pickPublicAddr(addrs)
+			if pubAddr != "" {
+				fmt.Printf("  %s      %s\n", prefix, pubAddr)
+			}
+		}
+	}
+
+	fmt.Println()
+	fmt.Printf("  Peers: %d    Topics: %v\n", len(peers), status["topics"])
+	fmt.Println()
+	return nil
+}
+
+// pickPublicAddr extracts the first public IP TCP address from the addr list string.
+func pickPublicAddr(addrs string) string {
+	// addrs looks like "[/ip4/172.17.0.1/tcp/4001 /ip4/210.45.71.131/tcp/4001 ...]"
+	addrs = strings.Trim(addrs, "[]")
+	parts := strings.Fields(addrs)
+	for _, a := range parts {
+		// Only show tcp addrs with public IPs
+		if !strings.Contains(a, "/tcp/") {
+			continue
+		}
+		if strings.Contains(a, "/127.0.0.1/") ||
+			strings.Contains(a, "/10.") ||
+			strings.Contains(a, "/172.") ||
+			strings.Contains(a, "/192.168.") ||
+			strings.Contains(a, "/100.64.") {
+			continue
+		}
+		return a
+	}
+	// fallback: return first tcp addr
+	for _, a := range parts {
+		if strings.Contains(a, "/tcp/") {
+			return a
+		}
+	}
+	return ""
 }
 
 func apiGet(path string) error {
