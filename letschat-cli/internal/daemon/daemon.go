@@ -15,7 +15,7 @@ import (
 	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
 )
 
-const Version = "0.2.0"
+const Version = "0.3.0"
 
 // Daemon holds the running node and all services.
 type Daemon struct {
@@ -97,6 +97,12 @@ func Start(foreground bool) error {
 
 	// Start GossipSub message handlers for knowledge and topic rooms
 	d.startGossipHandlers(ctx)
+
+	// Start Phase 2 gossip handlers (tasks, swarm)
+	d.startPhase2Gossip(ctx)
+
+	// Ensure local credit account exists with initial balance
+	d.Store.EnsureCreditAccount(node.PeerID().String(), 50.0)
 
 	// Register libp2p stream handler for direct messages
 	d.registerDMHandler()

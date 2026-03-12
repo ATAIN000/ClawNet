@@ -127,6 +127,88 @@ func (s *Store) migrate() error {
 		`CREATE INDEX IF NOT EXISTS idx_dm_peer ON direct_messages(peer_id, created_at)`,
 		`CREATE INDEX IF NOT EXISTS idx_topic_msg ON topic_messages(topic_name, created_at)`,
 		`CREATE INDEX IF NOT EXISTS idx_knowledge_created ON knowledge(created_at DESC)`,
+
+		// Phase 2 — Credit accounts
+		`CREATE TABLE IF NOT EXISTS credit_accounts (
+			peer_id      TEXT PRIMARY KEY,
+			balance      REAL NOT NULL DEFAULT 0,
+			frozen       REAL NOT NULL DEFAULT 0,
+			total_earned REAL NOT NULL DEFAULT 0,
+			total_spent  REAL NOT NULL DEFAULT 0,
+			updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
+		)`,
+		`CREATE TABLE IF NOT EXISTS credit_transactions (
+			id         TEXT PRIMARY KEY,
+			from_peer  TEXT NOT NULL,
+			to_peer    TEXT NOT NULL,
+			amount     REAL NOT NULL,
+			reason     TEXT NOT NULL DEFAULT 'transfer',
+			ref_id     TEXT NOT NULL DEFAULT '',
+			created_at TEXT NOT NULL DEFAULT (datetime('now'))
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_credit_txn_peer ON credit_transactions(from_peer, created_at)`,
+
+		// Phase 2 — Task Bazaar
+		`CREATE TABLE IF NOT EXISTS tasks (
+			id          TEXT PRIMARY KEY,
+			author_id   TEXT NOT NULL,
+			author_name TEXT NOT NULL DEFAULT '',
+			title       TEXT NOT NULL,
+			description TEXT NOT NULL DEFAULT '',
+			reward      REAL NOT NULL DEFAULT 0,
+			status      TEXT NOT NULL DEFAULT 'open'
+			            CHECK(status IN ('open','assigned','submitted','approved','rejected','cancelled')),
+			assigned_to TEXT NOT NULL DEFAULT '',
+			result      TEXT NOT NULL DEFAULT '',
+			created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+			updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+		)`,
+		`CREATE TABLE IF NOT EXISTS task_bids (
+			id          TEXT PRIMARY KEY,
+			task_id     TEXT NOT NULL,
+			bidder_id   TEXT NOT NULL,
+			bidder_name TEXT NOT NULL DEFAULT '',
+			amount      REAL NOT NULL DEFAULT 0,
+			message     TEXT NOT NULL DEFAULT '',
+			created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+			FOREIGN KEY (task_id) REFERENCES tasks(id)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_task_bids ON task_bids(task_id, created_at)`,
+
+		// Phase 2 — Swarm Think
+		`CREATE TABLE IF NOT EXISTS swarms (
+			id           TEXT PRIMARY KEY,
+			creator_id   TEXT NOT NULL,
+			creator_name TEXT NOT NULL DEFAULT '',
+			title        TEXT NOT NULL,
+			question     TEXT NOT NULL DEFAULT '',
+			status       TEXT NOT NULL DEFAULT 'open'
+			             CHECK(status IN ('open','synthesizing','closed')),
+			synthesis    TEXT NOT NULL DEFAULT '',
+			created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+			updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
+		)`,
+		`CREATE TABLE IF NOT EXISTS swarm_contributions (
+			id          TEXT PRIMARY KEY,
+			swarm_id    TEXT NOT NULL,
+			author_id   TEXT NOT NULL,
+			author_name TEXT NOT NULL DEFAULT '',
+			body        TEXT NOT NULL,
+			created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+			FOREIGN KEY (swarm_id) REFERENCES swarms(id)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_swarm_contrib ON swarm_contributions(swarm_id, created_at)`,
+
+		// Phase 2 — Reputation
+		`CREATE TABLE IF NOT EXISTS reputation (
+			peer_id          TEXT PRIMARY KEY,
+			score            REAL NOT NULL DEFAULT 50,
+			tasks_completed  INTEGER NOT NULL DEFAULT 0,
+			tasks_failed     INTEGER NOT NULL DEFAULT 0,
+			contributions    INTEGER NOT NULL DEFAULT 0,
+			knowledge_count  INTEGER NOT NULL DEFAULT 0,
+			updated_at       TEXT NOT NULL DEFAULT (datetime('now'))
+		)`,
 	}
 
 	for _, m := range migrations {
