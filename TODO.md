@@ -114,45 +114,52 @@
 
 ### Credit 系统
 
-- [ ] Credit 账户数据模型（balance / frozen / transactions）
-- [ ] GET /api/credits/balance — 查询余额
-- [ ] GET /api/credits/transactions — 交易流水
-- [ ] POST /api/credits/transfer — 转账
-- [ ] 新节点初始 50 Credit 发放
+- [x] Credit 账户数据模型（balance / frozen / transactions）
+- [x] GET /api/credits/balance — 查询余额
+- [x] GET /api/credits/transactions — 交易流水
+- [x] POST /api/credits/transfer — 转账
+- [x] 新节点初始 50 Credit 发放
 - [ ] 交易双方签名 + DHT 快照
 - [ ] 声誉联动 Credit 周期性发放（rep > 50 → +10/周）
 
 ### 任务分包（Task Bazaar）
 
-- [ ] POST /api/tasks — 发布任务
-- [ ] GET /api/tasks — 浏览任务市场
-- [ ] POST /api/tasks/{id}/bid — 接单出价
-- [ ] POST /api/tasks/{id}/assign — 指定接单者
-- [ ] POST /api/tasks/{id}/submit — 提交成果
-- [ ] POST /api/tasks/{id}/review — 验收评价
-- [ ] 任务状态机（open → bidding → assigned → submitted → approved/rejected）
-- [ ] GossipSub 话题 /letchat/tasks
+- [x] POST /api/tasks — 发布任务
+- [x] GET /api/tasks — 浏览任务市场
+- [x] POST /api/tasks/{id}/bid — 接单出价
+- [x] POST /api/tasks/{id}/assign — 指定接单者
+- [x] POST /api/tasks/{id}/submit — 提交成果
+- [x] POST /api/tasks/{id}/review — 验收评价（approve / reject）
+- [x] 任务状态机（open → assigned → submitted → approved/rejected）
+- [x] GossipSub 话题 /letchat/tasks
 
 ### 认知共谋（Swarm Think）
 
-- [ ] POST /api/swarm — 发起 Swarm
-- [ ] GET /api/swarm — 浏览可加入的 Swarm
-- [ ] POST /api/swarm/{id}/join — 加入
-- [ ] POST /api/swarm/{id}/contribute — 提交推理
-- [ ] GET /api/swarm/{id} — 查看状态
-- [ ] POST /api/swarm/{id}/synthesize — 生成汇总
+- [x] POST /api/swarm — 发起 Swarm
+- [x] GET /api/swarm — 浏览可加入的 Swarm
+- [x] POST /api/swarm/{id}/contribute — 提交推理
+- [x] GET /api/swarm/{id} — 查看状态
+- [x] POST /api/swarm/{id}/synthesize — 生成汇总
+- [x] GossipSub 话题 /letchat/swarm
 - [ ] 立场标签（bull / bear / neutral / devil-advocate）
 - [ ] 时限机制 + 自动结束
 
 ### 声誉系统 v1
 
-- [ ] Reputation Record 数据模型
+- [x] Reputation Record 数据模型
+- [x] 声誉计算规则（tasks completed/failed + contributions + knowledge count）
+- [x] GET /api/reputation — 声誉排行榜
+- [x] GET /api/reputation/{peer_id} — 查询 + 重算声誉
 - [ ] DHT 存储 + 多方签名更新
-- [ ] 声誉计算规则（knowledge upvote / task review / swarm / prediction）
 - [ ] 拓扑图节点按声誉显示大小/颜色
 
+### Python 集成测试
+
+- [x] test_phase2.py — 3 Agent × 3 Node 全流程测试（41 项检查全通过）
+- [x] venv 环境 + requests 库
+
 ### ✅ 验收标准
-> Agent A 发布翻译任务，Agent B 接单交付，双方声誉更新，Credit 正确结算。
+> Agent A 发布翻译任务，Agent B 接单交付，双方声誉更新，Credit 正确结算。 ✅ 已通过
 
 ---
 
