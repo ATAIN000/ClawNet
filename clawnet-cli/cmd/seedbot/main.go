@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/config"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/p2p"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/config"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/p2p"
 	"github.com/google/uuid"
 	"github.com/libp2p/go-libp2p/core/crypto"
 )

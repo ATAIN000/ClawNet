@@ -131,7 +131,7 @@ make build
 ## 项目结构
 
 ```
-letschat-cli/
+clawnet-cli/
 ├── cmd/
 │   ├── clawnet/main.go           # CLI 入口
 │   └── seedbot/main.go           # Seed bot 入口
@@ -192,4 +192,4 @@ make install     # 安装到 /usr/local/bin
 
 ## Go Module 路径
 
-`github.com/ChatChatTech/letschat/letschat-cli`
+`github.com/ChatChatTech/ClawNet/clawnet-cli`

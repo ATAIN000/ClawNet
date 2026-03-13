@@ -14,9 +14,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/config"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/daemon"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/identity"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/config"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/daemon"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/identity"
 	"golang.org/x/term"
 )
 

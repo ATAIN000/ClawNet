@@ -1,4 +1,4 @@
-module github.com/ChatChatTech/letschat/letschat-cli
+module github.com/ChatChatTech/ClawNet/clawnet-cli
 
 go 1.26.1
 

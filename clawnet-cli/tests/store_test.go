@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/store"
 )
 
 func TestStoreKnowledgeCRUD(t *testing.T) {

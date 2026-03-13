@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/store"
 	"github.com/google/uuid"
 )
 

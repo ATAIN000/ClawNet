@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/store"
 	"github.com/google/uuid"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 )

@@ -10,11 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/config"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/geo"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/identity"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/p2p"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/config"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/geo"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/identity"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/p2p"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/store"
 )
 
 const Version = "0.5.0"

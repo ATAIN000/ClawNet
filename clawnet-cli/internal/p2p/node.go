@@ -19,7 +19,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 	"github.com/multiformats/go-multiaddr"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/config"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/config"
 )
 
 const (

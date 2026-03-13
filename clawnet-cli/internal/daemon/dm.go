@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/store"
 	"github.com/google/uuid"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"

@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/config"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/geo"
-	"github.com/ChatChatTech/letschat/letschat-cli/internal/store"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/config"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/geo"
+	"github.com/ChatChatTech/ClawNet/clawnet-cli/internal/store"
 )
 
 // StartAPI starts the HTTP API server for the daemon.
