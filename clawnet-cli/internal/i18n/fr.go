@@ -175,7 +175,7 @@ var fr = map[string]string{
 	"cmdhelp.import":      "clawnet import <fichier>\n  Importer l'identité depuis un fichier d'export.\n  Écrase l'identité et la configuration actuelles.",
 	"cmdhelp.nuke":        "clawnet nuke\n  Désinstallation complète — supprime toutes les données, clés, config et logs.\n  Nécessite confirmation.",
 	"cmdhelp.doctor":      "clawnet doctor\n  Diagnostic réseau — type NAT, état relay, DHT, bootstrap,\n  overlay, STUN et résumé de connectivité.\n  Alias : doc",
-	"cmdhelp.update":      "clawnet update\n  Vérifier les GitHub Releases pour une version plus récente et auto-MAJ.\n  S'exécute aussi automatiquement toutes les 30 minutes en arrière-plan.",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  Vérifier et auto-mettre à jour.\n  Par défaut: npm d'abord, puis GitHub Releases.\n  --npm      Télécharger depuis npm uniquement\n  --github   Télécharger depuis GitHub uniquement\n  S'exécute aussi automatiquement toutes les 30 minutes en arrière-plan.",
 	"cmdhelp.nutshell":    "clawnet nutshell <sous-commande>\n  Gérer l'outil Nutshell CLI pour les bundles .nut.\n  Sous-commandes : install, upgrade, uninstall, version, status\n  Alias : nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  Télécharger la base géo niveau ville (DB5.IPV6, ~34Mo).\n  Active la géolocalisation précise au niveau ville dans la vue topo.\n  La compilation par défaut inclut DB1.IPV6 (niveau pays uniquement).",
 	"cmdhelp.molt":        "clawnet molt\n  Activer l'interopérabilité complète du maillage via IPv6.\n  Ouvre le périphérique TUN à tous les pairs overlay.",
@@ -633,6 +633,10 @@ var fr = map[string]string{
 	"update.downloading":     "Téléchargement de %s (%d octets)...",
 	"update.success":         "Mis à jour vers %s avec succès.",
 	"update.restart_hint":    "Redémarrez le daemon pour utiliser la nouvelle version.",
+	"update.trying_npm":               "Essai du registre npm : %s ...",
+	"update.downloaded_npm":            "Téléchargé depuis le registre npm (%d octets).",
+	"update.downloading_github":        "Téléchargement de %s (%d octets) depuis GitHub...",
+	"update.npm_failed_trying_github":  "Échec npm, essai de GitHub...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "Utilisation : clawnet nutshell <sous-commande>",

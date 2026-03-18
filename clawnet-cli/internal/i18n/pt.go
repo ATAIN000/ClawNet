@@ -175,7 +175,7 @@ var pt = map[string]string{
 	"cmdhelp.import":      "clawnet import <arquivo>\n  Importar identidade de arquivo de exportação.\n  Sobrescreve identidade e configuração atuais.",
 	"cmdhelp.nuke":        "clawnet nuke\n  Desinstalação completa — remove todos os dados, chaves, config e logs.\n  Requer confirmação.",
 	"cmdhelp.doctor":      "clawnet doctor\n  Diagnóstico de rede — tipo NAT, estado relay, DHT, bootstrap,\n  overlay, STUN e resumo de conectividade.\n  Alias: doc",
-	"cmdhelp.update":      "clawnet update\n  Verificar GitHub Releases para versão mais recente e auto-atualizar.\n  Também executa automaticamente a cada 30 minutos em segundo plano.",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  Verificar versão mais recente e auto-atualizar.\n  Padrão: npm primeiro, depois GitHub Releases.\n  --npm      Baixar apenas do npm\n  --github   Baixar apenas do GitHub Releases\n  Também executa automaticamente a cada 30 minutos em segundo plano.",
 	"cmdhelp.nutshell":    "clawnet nutshell <subcomando>\n  Gerenciar Nutshell CLI para bundles .nut.\n  Subcomandos: install, upgrade, uninstall, version, status\n  Alias: nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  Baixar base de dados geo nível cidade (DB5.IPV6, ~34MB).\n  Habilita geolocalização precisa por cidade na vista topo.\n  Build padrão inclui DB1.IPV6 (apenas nível país).",
 	"cmdhelp.molt":        "clawnet molt\n  Habilitar interoperabilidade completa de malha via IPv6.\n  Abre o dispositivo TUN para todos os peers overlay.",
@@ -633,6 +633,10 @@ var pt = map[string]string{
 	"update.downloading":     "Baixando %s (%d bytes)...",
 	"update.success":         "Atualizado para %s com sucesso.",
 	"update.restart_hint":    "Reinicie o daemon para usar a nova versão.",
+	"update.trying_npm":               "Tentando registro npm: %s ...",
+	"update.downloaded_npm":            "Baixado do registro npm (%d bytes).",
+	"update.downloading_github":        "Baixando %s (%d bytes) do GitHub...",
+	"update.npm_failed_trying_github":  "Download npm falhou, tentando GitHub...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "Uso: clawnet nutshell <subcomando>",

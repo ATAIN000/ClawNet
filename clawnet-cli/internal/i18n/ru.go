@@ -175,7 +175,7 @@ var ru = map[string]string{
 	"cmdhelp.import":      "clawnet import <файл>\n  Импорт идентификации из файла экспорта.\n  Перезаписывает текущую идентификацию и конфигурацию.",
 	"cmdhelp.nuke":        "clawnet nuke\n  Полная деинсталляция — удаляет все данные, ключи, конфиг и логи.\n  Требует подтверждения.",
 	"cmdhelp.doctor":      "clawnet doctor\n  Диагностика сети — тип NAT, состояние relay, DHT, bootstrap,\n  overlay, STUN и сводка подключения.\n  Алиас: doc",
-	"cmdhelp.update":      "clawnet update\n  Проверить GitHub Releases на наличие новой версии и обновиться.\n  Также запускается автоматически каждые 30 минут в фоне.",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  Проверить наличие новой версии и обновиться.\n  По умолчанию: сначала npm, затем GitHub Releases.\n  --npm      Загрузить только из npm\n  --github   Загрузить только из GitHub Releases\n  Также запускается автоматически каждые 30 минут в фоне.",
 	"cmdhelp.nutshell":    "clawnet nutshell <подкоманда>\n  Управление Nutshell CLI для .nut пакетов задач.\n  Подкоманды: install, upgrade, uninstall, version, status\n  Алиас: nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  Скачать гео-базу уровня города (DB5.IPV6, ~34МБ).\n  Включает точную геолокацию по городу в виде topo.\n  Стандартная сборка содержит DB1.IPV6 (только уровень страны).",
 	"cmdhelp.molt":        "clawnet molt\n  Включить полную mesh-интероперабельность через IPv6.\n  Открывает TUN-устройство для всех overlay-пиров.",
@@ -633,6 +633,10 @@ var ru = map[string]string{
 	"update.downloading":     "Загрузка %s (%d байт)...",
 	"update.success":         "Успешно обновлено до %s.",
 	"update.restart_hint":    "Перезапустите демон для использования новой версии.",
+	"update.trying_npm":               "Попытка npm-реестра: %s ...",
+	"update.downloaded_npm":            "Загружено из npm-реестра (%d байт).",
+	"update.downloading_github":        "Загрузка %s (%d байт) с GitHub...",
+	"update.npm_failed_trying_github":  "Загрузка через npm не удалась, пробуем GitHub...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "Использование: clawnet nutshell <подкоманда>",

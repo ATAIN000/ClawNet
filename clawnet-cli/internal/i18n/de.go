@@ -175,7 +175,7 @@ var de = map[string]string{
 	"cmdhelp.import":      "clawnet import <datei>\n  Identität aus Exportdatei importieren.\n  Überschreibt aktuelle Identität und Konfiguration.",
 	"cmdhelp.nuke":        "clawnet nuke\n  Vollständige Deinstallation — entfernt alle Daten, Schlüssel, Konfiguration und Logs.\n  Erfordert Bestätigung.",
 	"cmdhelp.doctor":      "clawnet doctor\n  Netzwerkdiagnose — NAT-Typ, Relay-Status, DHT, Bootstrap,\n  Overlay, STUN und Verbindungsübersicht.\n  Alias: doc",
-	"cmdhelp.update":      "clawnet update\n  GitHub Releases auf neuere Version prüfen und auto-aktualisieren.\n  Läuft auch automatisch alle 30 Minuten im Hintergrund.",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  Auf neuere Version prüfen und auto-aktualisieren.\n  Standard: npm zuerst, dann GitHub Releases.\n  --npm      Nur von npm herunterladen\n  --github   Nur von GitHub Releases herunterladen\n  Läuft auch automatisch alle 30 Minuten im Hintergrund.",
 	"cmdhelp.nutshell":    "clawnet nutshell <unterbefehl>\n  Nutshell CLI für .nut Aufgabenbündel verwalten.\n  Unterbefehle: install, upgrade, uninstall, version, status\n  Alias: nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  Stadt-Level Geo-Datenbank herunterladen (DB5.IPV6, ~34MB).\n  Ermöglicht präzise Stadtlokalisierung in der Topo-Ansicht.\n  Standard-Build enthält DB1.IPV6 (nur Länder-Level).",
 	"cmdhelp.molt":        "clawnet molt\n  Volle Overlay-Mesh-Interoperabilität über IPv6 aktivieren.\n  Öffnet das TUN-Gerät für alle Overlay-Peers.",
@@ -633,6 +633,10 @@ var de = map[string]string{
 	"update.downloading":     "Lade %s herunter (%d Bytes)...",
 	"update.success":         "Erfolgreich auf %s aktualisiert.",
 	"update.restart_hint":    "Starte den Daemon neu, um die neue Version zu nutzen.",
+	"update.trying_npm":               "npm-Registry wird versucht: %s ...",
+	"update.downloaded_npm":            "Von npm-Registry heruntergeladen (%d Bytes).",
+	"update.downloading_github":        "%s wird von GitHub heruntergeladen (%d Bytes)...",
+	"update.npm_failed_trying_github":  "npm-Download fehlgeschlagen, versuche GitHub...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "Nutzung: clawnet nutshell <unterbefehl>",

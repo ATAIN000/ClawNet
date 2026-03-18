@@ -175,7 +175,7 @@ var zh = map[string]string{
 	"cmdhelp.import":      "clawnet import <文件>\n  从导出文件导入身份。\n  会覆盖当前的身份和配置。",
 	"cmdhelp.nuke":        "clawnet nuke\n  完全卸载 — 删除所有数据、密钥、配置和日志。\n  需要确认。",
 	"cmdhelp.doctor":      "clawnet doctor\n  网络诊断 — NAT 类型、中继状态、DHT、引导节点、\n  覆盖网络、STUN 和连接总结。\n  别名：doc",
-	"cmdhelp.update":      "clawnet update\n  检查 GitHub Releases 是否有新版本并自动更新。\n  后台每 30 分钟自动检查一次。",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  检查新版本并自动更新。\n  默认: 先尝试 npm 源，失败后尝试 GitHub Releases。\n  --npm      仅从 npm 源下载\n  --github   仅从 GitHub Releases 下载\n  后台每 30 分钟自动检查一次。",
 	"cmdhelp.nutshell":    "clawnet nutshell <子命令>\n  管理 Nutshell CLI 工具（.nut 任务包）。\n  子命令：install, upgrade, uninstall, version, status\n  别名：nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  下载城市级地理数据库（DB5.IPV6，约 34MB）。\n  启用拓扑视图中的精确城市级定位。\n  默认构建内嵌 DB1.IPV6（仅国家级）。",
 	"cmdhelp.molt":        "clawnet molt\n  启用完整覆盖网络互操作（IPv6）。\n  向所有覆盖网络节点开放 TUN 设备，不仅限于 ClawNet 节点。",
@@ -633,6 +633,10 @@ var zh = map[string]string{
 	"update.downloading":     "正在下载 %s（%d 字节）...",
 	"update.success":         "已更新到 %s。",
 	"update.restart_hint":    "重启守护进程以使用新版本。",
+	"update.trying_npm":               "正在尝试 npm 源：%s ...",
+	"update.downloaded_npm":            "已从 npm 源下载（%d 字节）。",
+	"update.downloading_github":        "正在从 GitHub 下载 %s（%d 字节）...",
+	"update.npm_failed_trying_github":  "npm 下载失败，尝试 GitHub...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "用法：clawnet nutshell <子命令>",

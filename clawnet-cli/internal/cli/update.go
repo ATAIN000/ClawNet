@@ -1,11 +1,14 @@
 package cli
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -15,9 +18,16 @@ import (
 )
 
 const (
-	updateOwner = "ChatChatTech"
-	updateRepo  = "ClawNet"
+	updateOwner  = "ChatChatTech"
+	updateRepo   = "ClawNet"
+	npmScope     = "@cctech2077"
 )
+
+// npm registries to try in order (npmmirror first for China users)
+var npmRegistries = []string{
+	"https://registry.npmmirror.com",
+	"https://registry.npmjs.org",
+}
 
 type ghRelease struct {
 	TagName string    `json:"tag_name"`
@@ -34,6 +44,18 @@ type ghAsset struct {
 func cmdUpdate() error {
 	current := "v" + daemon.Version
 	fmt.Println(i18n.Tf("update.current", current))
+
+	// Parse --source flag: auto (default), npm, github
+	source := "auto"
+	for _, a := range os.Args[2:] {
+		switch a {
+		case "--npm":
+			source = "npm"
+		case "--github":
+			source = "github"
+		}
+	}
+
 	fmt.Println(i18n.T("update.checking"))
 
 	release, err := fetchLatestRelease()
@@ -48,7 +70,50 @@ func cmdUpdate() error {
 
 	fmt.Println(i18n.Tf("update.available", release.TagName))
 
-	// Find matching asset for current OS/arch
+	ver := strings.TrimPrefix(release.TagName, "v")
+
+	// Download to temp file
+	binPath, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("find current binary: %w", err)
+	}
+	tmpPath := binPath + ".update"
+	defer os.Remove(tmpPath)
+
+	var dlErr error
+	switch source {
+	case "npm":
+		dlErr = downloadFromNpm(ver, tmpPath)
+	case "github":
+		dlErr = downloadFromGitHub(release, tmpPath)
+	default: // auto: npm first, then GitHub
+		dlErr = downloadFromNpm(ver, tmpPath)
+		if dlErr != nil {
+			fmt.Println(i18n.T("update.npm_failed_trying_github"))
+			dlErr = downloadFromGitHub(release, tmpPath)
+		}
+	}
+	if dlErr != nil {
+		return fmt.Errorf("download: %w", dlErr)
+	}
+
+	// Make executable
+	if err := os.Chmod(tmpPath, 0755); err != nil {
+		return fmt.Errorf("chmod: %w", err)
+	}
+
+	// Atomic replace: rename over the current binary
+	if err := os.Rename(tmpPath, binPath); err != nil {
+		return fmt.Errorf("replace binary: %w", err)
+	}
+
+	fmt.Println(i18n.Tf("update.success", release.TagName))
+	fmt.Println(i18n.T("update.restart_hint"))
+	return nil
+}
+
+// downloadFromGitHub downloads the binary from GitHub Releases.
+func downloadFromGitHub(release *ghRelease, dest string) error {
 	assetName := fmt.Sprintf("clawnet-%s-%s", runtime.GOOS, runtime.GOARCH)
 	var asset *ghAsset
 	for i := range release.Assets {
@@ -58,7 +123,6 @@ func cmdUpdate() error {
 		}
 	}
 	if asset == nil {
-		// Try the generic name
 		for i := range release.Assets {
 			if release.Assets[i].Name == "clawnet" {
 				asset = &release.Assets[i]
@@ -67,38 +131,99 @@ func cmdUpdate() error {
 		}
 	}
 	if asset == nil {
-		return fmt.Errorf("no binary found for %s/%s in release %s", runtime.GOOS, runtime.GOARCH, release.TagName)
+		return fmt.Errorf("no binary for %s/%s in release", runtime.GOOS, runtime.GOARCH)
 	}
 
-	fmt.Println(i18n.Tf("update.downloading", asset.Name, asset.Size))
+	fmt.Println(i18n.Tf("update.downloading_github", asset.Name, asset.Size))
+	return downloadAsset(asset.BrowserDownloadURL, dest)
+}
 
-	// Download to temp file
-	binPath, err := os.Executable()
+// downloadFromNpm downloads the binary from npm registry (npmmirror → npmjs).
+func downloadFromNpm(version, dest string) error {
+	// Map Go OS/arch to npm package naming
+	npmOS := runtime.GOOS
+	if npmOS == "windows" {
+		npmOS = "win32"
+	}
+	npmArch := runtime.GOARCH
+	if npmArch == "amd64" {
+		npmArch = "x64"
+	}
+
+	pkgBase := fmt.Sprintf("clawnet-%s-%s", npmOS, npmArch)
+	pkgName := fmt.Sprintf("%s/%s", npmScope, pkgBase)
+
+	client := &http.Client{Timeout: 2 * time.Minute}
+
+	for _, registry := range npmRegistries {
+		tarballURL := fmt.Sprintf("%s/%s/-/%s-%s.tgz", registry, pkgName, pkgBase, version)
+		fmt.Println(i18n.Tf("update.trying_npm", registry))
+
+		req, err := http.NewRequest("GET", tarballURL, nil)
+		if err != nil {
+			continue
+		}
+		req.Header.Set("User-Agent", "clawnet/"+daemon.Version)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			resp.Body.Close()
+			continue
+		}
+
+		// Extract binary from tarball: package/bin/clawnet
+		binName := "clawnet"
+		if runtime.GOOS == "windows" {
+			binName = "clawnet.exe"
+		}
+
+		err = extractBinaryFromTgz(resp.Body, filepath.Join("package", "bin", binName), dest)
+		resp.Body.Close()
+		if err != nil {
+			continue
+		}
+
+		info, _ := os.Stat(dest)
+		if info != nil && info.Size() > 0 {
+			fmt.Println(i18n.Tf("update.downloaded_npm", info.Size()))
+			return nil
+		}
+	}
+	return fmt.Errorf("npm download failed for all registries")
+}
+
+// extractBinaryFromTgz extracts a single file from a .tgz archive.
+func extractBinaryFromTgz(r io.Reader, targetPath, dest string) error {
+	gz, err := gzip.NewReader(r)
 	if err != nil {
-		return fmt.Errorf("find current binary: %w", err)
+		return err
 	}
+	defer gz.Close()
 
-	tmpPath := binPath + ".update"
-	if err := downloadAsset(asset.BrowserDownloadURL, tmpPath); err != nil {
-		os.Remove(tmpPath)
-		return fmt.Errorf("download: %w", err)
+	tr := tar.NewReader(gz)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		if hdr.Name == targetPath || strings.HasSuffix(hdr.Name, "/bin/clawnet") || strings.HasSuffix(hdr.Name, "/bin/clawnet.exe") {
+			out, err := os.Create(dest)
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(out, io.LimitReader(tr, 200<<20))
+			out.Close()
+			return err
+		}
 	}
-
-	// Make executable
-	if err := os.Chmod(tmpPath, 0755); err != nil {
-		os.Remove(tmpPath)
-		return fmt.Errorf("chmod: %w", err)
-	}
-
-	// Atomic replace: rename over the current binary
-	if err := os.Rename(tmpPath, binPath); err != nil {
-		os.Remove(tmpPath)
-		return fmt.Errorf("replace binary: %w", err)
-	}
-
-	fmt.Println(i18n.Tf("update.success", release.TagName))
-	fmt.Println(i18n.T("update.restart_hint"))
-	return nil
+	return fmt.Errorf("binary not found in tarball")
 }
 
 func fetchLatestRelease() (*ghRelease, error) {

@@ -175,7 +175,7 @@ var ja = map[string]string{
 	"cmdhelp.import":      "clawnet import <ファイル>\n  エクスポートファイルからIDをインポート。\n  現在のIDと設定を上書きします。",
 	"cmdhelp.nuke":        "clawnet nuke\n  完全アンインストール — 全データ、キー、設定、ログを削除。\n  確認が必要です。",
 	"cmdhelp.doctor":      "clawnet doctor\n  ネットワーク診断 — NAT種別、リレー、DHT、ブートストラップ、\n  オーバーレイ、STUN、接続サマリー。\n  エイリアス：doc",
-	"cmdhelp.update":      "clawnet update\n  GitHub Releases で新バージョンを確認し自動更新。\n  バックグラウンドで30分ごとに自動チェック。",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  新バージョンを確認し自動更新。\n  デフォルト: npm → GitHub の順で試行。\n  --npm      npmレジストリのみ\n  --github   GitHub Releasesのみ\n  バックグラウンドで30分ごとに自動チェック。",
 	"cmdhelp.nutshell":    "clawnet nutshell <サブコマンド>\n  Nutshell CLIツール（.nutタスクバンドル）を管理。\n  サブコマンド：install, upgrade, uninstall, version, status\n  エイリアス：nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  都市レベル地理DB（DB5.IPV6、約34MB）をダウンロード。\n  トポロジービューで正確な都市レベル位置情報を有効化。\n  デフォルトはDB1.IPV6（国レベルのみ）。",
 	"cmdhelp.molt":        "clawnet molt\n  フルオーバーレイ相互運用を有効化（IPv6）。\n  全オーバーレイノードにTUNデバイスを開放。",
@@ -633,6 +633,10 @@ var ja = map[string]string{
 	"update.downloading":     "%s をダウンロード中（%d バイト）...",
 	"update.success":         "%s に更新しました。",
 	"update.restart_hint":    "新バージョンを使用するにはデーモンを再起動してください。",
+	"update.trying_npm":               "npmレジストリを試行中：%s ...",
+	"update.downloaded_npm":            "npmレジストリからダウンロード完了（%d バイト）。",
+	"update.downloading_github":        "GitHubから %s をダウンロード中（%d バイト）...",
+	"update.npm_failed_trying_github":  "npmダウンロード失敗、GitHubを試行中...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "用法：clawnet nutshell <サブコマンド>",

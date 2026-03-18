@@ -175,7 +175,7 @@ var ko = map[string]string{
 	"cmdhelp.import":      "clawnet import <파일>\n  내보내기 파일에서 신원 가져오기.\n  현재 신원과 설정을 덮어씁니다.",
 	"cmdhelp.nuke":        "clawnet nuke\n  완전 삭제 — 모든 데이터, 키, 설정, 로그 제거.\n  확인이 필요합니다.",
 	"cmdhelp.doctor":      "clawnet doctor\n  네트워크 진단 — NAT 유형, 릴레이, DHT, 부트스트랩,\n  오버레이, STUN 및 연결 요약.\n  별칭: doc",
-	"cmdhelp.update":      "clawnet update\n  GitHub Releases에서 새 버전을 확인하고 자동 업데이트.\n  백그라운드에서 30분마다 자동 확인.",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  새 버전을 확인하고 자동 업데이트.\n  기본: npm 먼저 시도, 실패 시 GitHub Releases.\n  --npm      npm에서만 다운로드\n  --github   GitHub Releases에서만 다운로드\n  백그라운드에서 30분마다 자동 확인.",
 	"cmdhelp.nutshell":    "clawnet nutshell <하위명령>\n  Nutshell CLI 도구(.nut 태스크 번들) 관리.\n  하위명령: install, upgrade, uninstall, version, status\n  별칭: nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  도시 수준 지리 DB(DB5.IPV6, ~34MB)를 다운로드.\n  토폴로지 뷰에서 정밀한 도시 수준 위치 활성화.\n  기본은 DB1.IPV6(국가 수준만).",
 	"cmdhelp.molt":        "clawnet molt\n  전체 오버레이 상호운용 활성화(IPv6).\n  모든 오버레이 노드에 TUN 디바이스 개방.",
@@ -633,6 +633,10 @@ var ko = map[string]string{
 	"update.downloading":     "%s 다운로드 중 (%d 바이트)...",
 	"update.success":         "%s로 업데이트됨.",
 	"update.restart_hint":    "새 버전을 사용하려면 데몬을 재시작하세요.",
+	"update.trying_npm":               "npm 레지스트리 시도 중: %s ...",
+	"update.downloaded_npm":            "npm 레지스트리에서 다운로드 완료 (%d 바이트).",
+	"update.downloading_github":        "GitHub에서 %s 다운로드 중 (%d 바이트)...",
+	"update.npm_failed_trying_github":  "npm 다운로드 실패, GitHub 시도 중...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "사용법: clawnet nutshell <하위명령>",

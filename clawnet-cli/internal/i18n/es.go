@@ -175,7 +175,7 @@ var es = map[string]string{
 	"cmdhelp.import":      "clawnet import <archivo>\n  Importa identidad desde un archivo de exportación.\n  Sobrescribe la identidad y configuración actuales.",
 	"cmdhelp.nuke":        "clawnet nuke\n  Desinstalación completa — elimina todos los datos, claves, config y logs.\n  Requiere confirmación.",
 	"cmdhelp.doctor":      "clawnet doctor\n  Diagnóstico de red — tipo NAT, relé, DHT, bootstrap,\n  overlay, STUN y resumen de conexión.\n  Alias: doc",
-	"cmdhelp.update":      "clawnet update\n  Busca nuevas versiones en GitHub Releases y actualiza.\n  Verificación automática cada 30 minutos en segundo plano.",
+	"cmdhelp.update":      "clawnet update [--npm|--github]\n  Busca nuevas versiones y actualiza.\n  Por defecto: npm primero, luego GitHub Releases.\n  --npm      Descargar solo de npm\n  --github   Descargar solo de GitHub Releases\n  Verificación automática cada 30 minutos en segundo plano.",
 	"cmdhelp.nutshell":    "clawnet nutshell <subcomando>\n  Gestiona la herramienta Nutshell CLI (.nut bundles).\n  Subcomandos: install, upgrade, uninstall, version, status\n  Alias: nut",
 	"cmdhelp.geo-upgrade": "clawnet geo-upgrade\n  Descarga BD geográfica a nivel ciudad (DB5.IPV6, ~34MB).\n  Habilita ubicación precisa en la vista de topología.\n  Por defecto incluye DB1.IPV6 (solo país).",
 	"cmdhelp.molt":        "clawnet molt\n  Habilita interoperabilidad completa de overlay (IPv6).\n  Abre dispositivo TUN a todos los nodos overlay.",
@@ -633,6 +633,10 @@ var es = map[string]string{
 	"update.downloading":     "Descargando %s (%d bytes)...",
 	"update.success":         "Actualizado a %s.",
 	"update.restart_hint":    "Reinicia el daemon para usar la nueva versión.",
+	"update.trying_npm":               "Intentando registro npm: %s ...",
+	"update.downloaded_npm":            "Descargado desde registro npm (%d bytes).",
+	"update.downloading_github":        "Descargando %s (%d bytes) desde GitHub...",
+	"update.npm_failed_trying_github":  "Descarga npm fallida, intentando GitHub...",
 
 	// ── Nutshell ──
 	"nutshell.usage":             "Uso: clawnet nutshell <subcomando>",
