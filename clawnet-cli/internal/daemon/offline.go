@@ -93,6 +93,13 @@ func (d *Daemon) replayOp(ctx context.Context, op *store.PendingOp) error {
 		}
 		return d.publishTopicMessage(ctx, msg.Topic, msg.Body)
 
+	case "task":
+		var task store.Task
+		if err := json.Unmarshal([]byte(op.Payload), &task); err != nil {
+			return fmt.Errorf("unmarshal task: %w", err)
+		}
+		return d.republishTask(ctx, &task)
+
 	default:
 		return fmt.Errorf("unknown op type: %s", op.Type)
 	}

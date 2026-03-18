@@ -435,6 +435,19 @@ func (d *Daemon) publishTask(ctx context.Context, t *store.Task) error {
 
 	msg := GossipTaskMsg{Type: "task", Task: t}
 	data, _ := json.Marshal(msg)
+	if err := d.Node.Publish(ctx, TaskTopic, data); err != nil {
+		// Queue for offline retry
+		d.Store.QueuePendingOp("task", t)
+		return fmt.Errorf("publish (queued for retry): %w", err)
+	}
+	return nil
+}
+
+// republishTask re-broadcasts a task to gossipsub without re-storing or re-freezing.
+// Used by the offline retry queue.
+func (d *Daemon) republishTask(ctx context.Context, t *store.Task) error {
+	msg := GossipTaskMsg{Type: "task", Task: t}
+	data, _ := json.Marshal(msg)
 	return d.Node.Publish(ctx, TaskTopic, data)
 }
 

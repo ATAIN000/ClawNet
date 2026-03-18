@@ -678,6 +678,46 @@ func sqrtRep(rep float64) float64 {
 	return guess
 }
 
+// ListTasksSince returns tasks created after the given RFC3339 timestamp.
+func (s *Store) ListTasksSince(since string, limit int) ([]*Task, error) {
+	rows, err := s.DB.Query(
+		`SELECT id, author_id, author_name, title, description, tags, deadline, reward, status,
+		        assigned_to, result, target_peer, created_at, updated_at,
+		        nutshell_hash, nutshell_id, bundle_type, bid_close_at, work_deadline,
+		        mode, self_eval_score
+		 FROM tasks WHERE created_at > ? ORDER BY created_at ASC LIMIT ?`,
+		since, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []*Task
+	for rows.Next() {
+		t := &Task{}
+		if err := rows.Scan(&t.ID, &t.AuthorID, &t.AuthorName, &t.Title, &t.Description,
+			&t.Tags, &t.Deadline, &t.Reward, &t.Status, &t.AssignedTo, &t.Result, &t.TargetPeer,
+			&t.CreatedAt, &t.UpdatedAt,
+			&t.NutshellHash, &t.NutshellID, &t.BundleType, &t.BidCloseAt, &t.WorkDeadline,
+			&t.Mode, &t.SelfEvalScore); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, t)
+	}
+	return tasks, rows.Err()
+}
+
+// LatestTaskTime returns the created_at of the most recent task.
+func (s *Store) LatestTaskTime() string {
+	var t sql.NullString
+	s.DB.QueryRow(`SELECT MAX(created_at) FROM tasks`).Scan(&t)
+	if t.Valid {
+		return t.String
+	}
+	return ""
+}
+
 // ── Nutshell bundle storage ──
 
 // InsertTaskBundle stores a .nut bundle blob for a task.

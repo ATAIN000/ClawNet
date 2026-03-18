@@ -24,14 +24,16 @@ const (
 type syncRequest struct {
 	KnowledgeSince     string `json:"knowledge_since"`
 	TopicMessagesSince string `json:"topic_messages_since"`
+	TasksSince         string `json:"tasks_since,omitempty"`
 }
 
 // syncEntry is a union type for streamed sync items.
 type syncEntry struct {
-	Type         string               `json:"type"` // "knowledge", "topic_room", "topic_message"
+	Type         string               `json:"type"` // "knowledge", "topic_room", "topic_message", "task"
 	Knowledge    *store.KnowledgeEntry `json:"knowledge,omitempty"`
 	TopicRoom    *store.TopicRoom      `json:"topic_room,omitempty"`
 	TopicMessage *store.TopicMessage   `json:"topic_message,omitempty"`
+	Task         *store.Task           `json:"task,omitempty"`
 }
 
 // registerSyncHandler sets up the libp2p stream handler for history sync requests.
@@ -91,7 +93,18 @@ func (d *Daemon) registerSyncHandler() {
 				count++
 			}
 		}
-		fmt.Printf("sync-handler: sent %d entries to %s (since k=%q t=%q)\n", count, remotePeer[:16], req.KnowledgeSince, req.TopicMessagesSince)
+
+		// Stream tasks
+		tasks, err := d.Store.ListTasksSince(req.TasksSince, syncMaxItems)
+		if err == nil {
+			for _, t := range tasks {
+				data, _ := json.Marshal(syncEntry{Type: "task", Task: t})
+				writer.Write(data)
+				writer.WriteByte('\n')
+				count++
+			}
+		}
+		fmt.Printf("sync-handler: sent %d entries to %s (since k=%q t=%q task=%q)\n", count, remotePeer[:16], req.KnowledgeSince, req.TopicMessagesSince, req.TasksSince)
 	})
 }
 
@@ -127,6 +140,7 @@ func (d *Daemon) syncFromPeer(ctx context.Context, target peer.ID) int {
 	req := syncRequest{
 		KnowledgeSince:     d.Store.LatestKnowledgeTime(),
 		TopicMessagesSince: d.Store.LatestTopicMessageTime(),
+		TasksSince:         d.Store.LatestTaskTime(),
 	}
 	data, _ := json.Marshal(req)
 	data = append(data, '\n')
@@ -165,6 +179,11 @@ func (d *Daemon) syncFromPeer(ctx context.Context, target peer.ID) int {
 		case "topic_message":
 			if entry.TopicMessage != nil {
 				d.Store.InsertTopicMessage(entry.TopicMessage)
+				count++
+			}
+		case "task":
+			if entry.Task != nil {
+				d.Store.InsertTask(entry.Task)
 				count++
 			}
 		}
