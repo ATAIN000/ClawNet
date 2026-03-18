@@ -79,7 +79,7 @@ fetch_latest_tag() {
   fi
   if [ -z "$TAG" ]; then
     warn "Could not detect latest version, using fallback"
-    TAG="v1.0.0-beta.4"
+    TAG="v1.0.0-beta.5"
   fi
   info "Target release: $TAG"
 }
