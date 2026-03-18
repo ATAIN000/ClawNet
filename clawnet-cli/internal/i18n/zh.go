@@ -660,6 +660,8 @@ var zh = map[string]string{
 	"nutshell.status_path":       "路径：  %s",
 	"nutshell.status_size":       "大小：  %.1f MB",
 	"nutshell.status_version":    "版本：  %s",
+	"nutshell.symlinked":          "已创建符号链接以加入 PATH",
+	"nutshell.not_in_path":         "nutshell 不在您的 PATH 中，请手动添加：",
 
 	// ── 地理 ──
 	"geo.already_installed":  "✅ DB5.IPV6 已安装（%d 字节，修改于 %s）",

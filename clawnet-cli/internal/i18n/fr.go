@@ -659,8 +659,8 @@ var fr = map[string]string{
 	"nutshell.status_ok":         "Statut : installé",
 	"nutshell.status_path":       "Chemin :  %s",
 	"nutshell.status_size":       "Taille :  %.1f Mo",
-	"nutshell.status_version":    "Version : %s",
-
+	"nutshell.status_version":    "Version : %s",	"nutshell.symlinked":          "lien symbolique créé pour l'accès au PATH",
+	"nutshell.not_in_path":         "nutshell n'est pas dans votre PATH. Ajoutez-le avec :",
 	// ── Géo ──
 	"geo.already_installed":  "✅ DB5.IPV6 déjà installée (%d octets, modifiée %s)",
 	"geo.use_force":          "Utilisez --force pour re-télécharger.",

@@ -660,6 +660,8 @@ var ko = map[string]string{
 	"nutshell.status_path":       "경로:  %s",
 	"nutshell.status_size":       "크기:  %.1f MB",
 	"nutshell.status_version":    "버전:  %s",
+	"nutshell.symlinked":          "PATH 접근을 위해 심볼릭 링크를 생성했습니다",
+	"nutshell.not_in_path":         "nutshell이 PATH에 없습니다. 다음을 실행하세요:",
 
 	// ── 지리 ──
 	"geo.already_installed":  "✅ DB5.IPV6 설치됨 (%d 바이트, 수정일 %s)",

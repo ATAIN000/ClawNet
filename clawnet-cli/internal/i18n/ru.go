@@ -660,6 +660,8 @@ var ru = map[string]string{
 	"nutshell.status_path":       "Путь:    %s",
 	"nutshell.status_size":       "Размер:  %.1f МБ",
 	"nutshell.status_version":    "Версия:  %s",
+	"nutshell.symlinked":          "создана символическая ссылка для доступа через PATH",
+	"nutshell.not_in_path":         "nutshell не в PATH. Добавьте командой:",
 
 	// ── Гео ──
 	"geo.already_installed":  "✅ DB5.IPV6 уже установлена (%d байт, изменена %s)",

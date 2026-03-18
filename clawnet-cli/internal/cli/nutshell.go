@@ -152,7 +152,34 @@ func nutshellInstall(upgrade bool) error {
 	}
 
 	fmt.Println(i18n.Tf("nutshell.installed", binPath))
+
+	// Ensure nutshell is in PATH — if installed dir is not in PATH, symlink to /usr/local/bin
+	ensureNutshellInPath(binPath)
+
 	return nutshellVersion()
+}
+
+// ensureNutshellInPath checks whether the installed binary is discoverable via PATH.
+// If not, it tries to create a symlink in /usr/local/bin. If that fails, it prints a hint.
+func ensureNutshellInPath(binPath string) {
+	// Already discoverable?
+	if found, err := exec.LookPath(nutshellBinName); err == nil && found != "" {
+		return
+	}
+
+	// Try to symlink into /usr/local/bin
+	target := "/usr/local/bin/" + nutshellBinName
+	if binPath != target {
+		if err := os.Symlink(binPath, target); err == nil {
+			fmt.Printf("  %s→ %s %s%s\n", "\033[2m", target, i18n.T("nutshell.symlinked"), "\033[0m")
+			return
+		}
+	}
+
+	// Can't auto-fix — tell the user how
+	dir := filepath.Dir(binPath)
+	fmt.Printf("\n  \033[33m⚠\033[0m %s\n", i18n.T("nutshell.not_in_path"))
+	fmt.Printf("  \033[2m  export PATH=\"%s:$PATH\"\033[0m\n", dir)
 }
 
 // nutshellUninstall removes the nutshell binary.

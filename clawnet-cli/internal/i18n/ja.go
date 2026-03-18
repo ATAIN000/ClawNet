@@ -660,6 +660,8 @@ var ja = map[string]string{
 	"nutshell.status_path":       "パス：  %s",
 	"nutshell.status_size":       "サイズ：%.1f MB",
 	"nutshell.status_version":    "バージョン：%s",
+	"nutshell.symlinked":          "PATHアクセス用にシンボリックリンクを作成しました",
+	"nutshell.not_in_path":         "nutshellがPATHに含まれていません。以下を実行してください：",
 
 	// ── ジオ ──
 	"geo.already_installed":  "✅ DB5.IPV6はインストール済み（%d バイト、更新日 %s）",
