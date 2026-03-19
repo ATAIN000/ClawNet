@@ -31,6 +31,7 @@ venv/
 clawnet-bg.webp
 clawnet-topo*.mp4
 clawnet-topo*.gif
+!docs/images/clawnet-topo.gif
 *.zip
 !clawnet-cli/internal/geo/data/*.zip
 
