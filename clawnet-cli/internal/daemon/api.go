@@ -42,9 +42,14 @@ func (d *Daemon) StartAPI(ctx context.Context) *http.Server {
 	mux.HandleFunc("POST /api/knowledge", d.handlePostKnowledge)
 	mux.HandleFunc("GET /api/knowledge/feed", d.handleKnowledgeFeed)
 	mux.HandleFunc("GET /api/knowledge/search", d.handleKnowledgeSearch)
+	mux.HandleFunc("GET /api/knowledge/get", d.handleKnowledgeGet)
 	mux.HandleFunc("POST /api/knowledge/{id}/react", d.handleKnowledgeReact)
 	mux.HandleFunc("POST /api/knowledge/{id}/reply", d.handleKnowledgeReply)
 	mux.HandleFunc("GET /api/knowledge/{id}/replies", d.handleKnowledgeReplies)
+	mux.HandleFunc("GET /api/knowledge/{id}/annotations", d.handleKnowledgeAnnotationsList)
+	mux.HandleFunc("POST /api/knowledge/{id}/annotate", d.handleKnowledgeAnnotate)
+	mux.HandleFunc("DELETE /api/knowledge/{id}/annotations", d.handleKnowledgeAnnotationsClear)
+	mux.HandleFunc("POST /api/knowledge/sync", d.handleKnowledgeSync)
 
 	// Phase 1 — Topic Rooms
 	mux.HandleFunc("POST /api/topics", d.handleCreateTopic)
@@ -525,21 +530,102 @@ func (d *Daemon) handleKnowledgeFeed(w http.ResponseWriter, r *http.Request) {
 
 func (d *Daemon) handleKnowledgeSearch(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
-	if q == "" {
-		http.Error(w, `{"error":"q parameter required"}`, http.StatusBadRequest)
+	tags := r.URL.Query().Get("tags")
+	lang := r.URL.Query().Get("lang")
+	if q == "" && tags == "" {
+		http.Error(w, `{"error":"q or tags parameter required"}`, http.StatusBadRequest)
 		return
 	}
 	limit := queryInt(r, "limit", 20)
-	escaped := store.EscapeFTS5(q)
-	entries, err := d.Store.SearchKnowledge(escaped, limit)
+
+	var entries []*store.KnowledgeEntry
+	var err error
+
+	overFetch := limit * 3
+	if tags != "" || lang != "" {
+		overFetch = limit * 10 // need more headroom for post-filtering
+	}
+
+	if q != "" {
+		escaped := store.EscapeFTS5(q)
+		entries, err = d.Store.SearchKnowledgeDedup(escaped, overFetch)
+	} else if tags != "" {
+		// Tags-only: use SQL LIKE on domains column for first tag, then post-filter
+		firstTag := strings.Split(tags, ",")[0]
+		entries, err = d.Store.ListKnowledge(strings.TrimSpace(firstTag), overFetch, 0)
+	} else {
+		entries, err = d.Store.ListKnowledge("", overFetch, 0)
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Post-filter by tags
+	if tags != "" {
+		tagList := strings.Split(strings.ToLower(tags), ",")
+		var filtered []*store.KnowledgeEntry
+		for _, e := range entries {
+			if entryMatchesTags(e, tagList) {
+				filtered = append(filtered, e)
+			}
+		}
+		entries = filtered
+	}
+
+	// Post-filter by language
+	if lang != "" {
+		langFull := store.ExpandLangPublic(lang)
+		var filtered []*store.KnowledgeEntry
+		for _, e := range entries {
+			if entryMatchesLang(e, lang, langFull) {
+				filtered = append(filtered, e)
+			}
+		}
+		entries = filtered
+	}
+
+	// Apply limit
+	if len(entries) > limit {
+		entries = entries[:limit]
+	}
+
 	if entries == nil {
 		entries = []*store.KnowledgeEntry{}
 	}
 	writeJSON(w, entries)
+}
+
+// entryMatchesTags checks if a knowledge entry has any of the specified tags in its domains.
+func entryMatchesTags(e *store.KnowledgeEntry, tags []string) bool {
+	for _, d := range e.Domains {
+		dl := strings.ToLower(d)
+		for _, t := range tags {
+			t = strings.TrimSpace(t)
+			if t != "" && dl == t {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// entryMatchesLang checks if a knowledge entry matches the requested language.
+// Checks title (e.g. "openai/chat (python)") and domains.
+func entryMatchesLang(e *store.KnowledgeEntry, shortLang, fullLang string) bool {
+	// Check title for "(python)", "(javascript)", etc.
+	titleLower := strings.ToLower(e.Title)
+	if strings.Contains(titleLower, "("+fullLang+")") || strings.Contains(titleLower, "("+shortLang+")") {
+		return true
+	}
+	// Check domains
+	for _, d := range e.Domains {
+		dl := strings.ToLower(d)
+		if dl == shortLang || dl == fullLang {
+			return true
+		}
+	}
+	return false
 }
 
 func (d *Daemon) handleKnowledgeReact(w http.ResponseWriter, r *http.Request) {
@@ -594,6 +680,97 @@ func (d *Daemon) handleKnowledgeReplies(w http.ResponseWriter, r *http.Request) 
 		replies = []*store.KnowledgeReply{}
 	}
 	writeJSON(w, replies)
+}
+
+// handleKnowledgeGet handles GET /api/knowledge/get?q=openai/chat&lang=py
+// Supports: exact ID match, ID prefix match, and source_path fuzzy match.
+func (d *Daemon) handleKnowledgeGet(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	if q == "" {
+		apiError(w, http.StatusBadRequest, "q parameter required",
+			withSuggestion("Use: GET /api/knowledge/get?q=openai/chat&lang=py"))
+		return
+	}
+	lang := r.URL.Query().Get("lang")
+
+	// Try exact ID match first
+	if entry, err := d.Store.GetKnowledge(q); err == nil && entry != nil {
+		annotations, _ := d.Store.ListAnnotations(entry.ID)
+		writeJSON(w, map[string]any{"entry": entry, "annotations": annotations})
+		return
+	}
+
+	// Try source_path match (for chub-style IDs like openai/chat)
+	entries, err := d.Store.FindKnowledgeBySourcePath(q, lang, 10)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if len(entries) == 1 {
+		annotations, _ := d.Store.ListAnnotations(entries[0].ID)
+		writeJSON(w, map[string]any{"entry": entries[0], "annotations": annotations})
+		return
+	}
+
+	if len(entries) > 1 {
+		writeJSON(w, map[string]any{"matches": entries, "count": len(entries)})
+		return
+	}
+
+	// No results — check if Context Hub is synced
+	chubCount := d.Store.CountKnowledgeBySource("context-hub")
+	suggestion := "No matching docs found."
+	if chubCount == 0 {
+		suggestion = "Context Hub not synced yet. Run: clawnet knowledge sync"
+	}
+	apiError(w, http.StatusNotFound, "no matching knowledge entry",
+		withSuggestion(suggestion))
+}
+
+// handleKnowledgeAnnotate handles POST /api/knowledge/{id}/annotate
+func (d *Daemon) handleKnowledgeAnnotate(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	var body struct {
+		Note string `json:"note"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if body.Note == "" {
+		apiError(w, http.StatusBadRequest, "note is required")
+		return
+	}
+	if err := d.Store.InsertAnnotation(id, body.Note); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, map[string]string{"status": "ok"})
+}
+
+// handleKnowledgeAnnotationsList handles GET /api/knowledge/{id}/annotations
+func (d *Daemon) handleKnowledgeAnnotationsList(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	annotations, err := d.Store.ListAnnotations(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if annotations == nil {
+		annotations = []*store.Annotation{}
+	}
+	writeJSON(w, annotations)
+}
+
+// handleKnowledgeAnnotationsClear handles DELETE /api/knowledge/{id}/annotations
+func (d *Daemon) handleKnowledgeAnnotationsClear(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if err := d.Store.ClearAnnotations(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, map[string]string{"status": "ok"})
 }
 
 // ── Topic Room handlers ──

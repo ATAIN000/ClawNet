@@ -364,6 +364,12 @@ func Execute() error {
 		return cmdPredict()
 	case "knowledge", "know", "kb":
 		return cmdKnowledge()
+	case "search":
+		return cmdSearch()
+	case "get":
+		return cmdGet()
+	case "annotate":
+		return cmdAnnotate()
 	case "resume":
 		return cmdResume()
 	case "skill":
@@ -422,6 +428,9 @@ func printUsageVerbose(verbose bool) error {
 	fmt.Println(tidal+"  credits  "+dim+"         "+rst + i18n.T("cmd.credits"))
 	fmt.Println(tidal+"  predict  "+dim+"         "+rst + i18n.T("cmd.predict"))
 	fmt.Println(tidal+"  knowledge"+dim+"         "+rst + i18n.T("cmd.knowledge"))
+	fmt.Println(tidal+"  search   "+dim+"         "+rst + i18n.T("cmd.search"))
+	fmt.Println(tidal+"  get      "+dim+"         "+rst + i18n.T("cmd.get"))
+	fmt.Println(tidal+"  annotate "+dim+"         "+rst + i18n.T("cmd.annotate"))
 	fmt.Println(tidal+"  resume   "+dim+"         "+rst + i18n.T("cmd.resume"))
 
 	if verbose {
@@ -541,6 +550,27 @@ func printCmdHelp(cmd string) error {
 	case "knowledge":
 		knowledgeHelp(Verbose)
 		return nil
+	case "search":
+		fmt.Println("clawnet search [query] [options]")
+		fmt.Println()
+		fmt.Println("  Shortcut for: clawnet knowledge search")
+		fmt.Println("  Searches Knowledge Mesh including Context Hub docs.")
+		fmt.Println()
+		fmt.Println("  Options:")
+		fmt.Println("    --tags <tags>      Filter by tags (comma-separated)")
+		fmt.Println("    --lang <language>  Filter by language (py, js, ts, go, rb, etc.)")
+		fmt.Println("    --limit <n>        Max results (default: 20)")
+		fmt.Println()
+		fmt.Println("  Examples:")
+		fmt.Println("    clawnet search openai")
+		fmt.Println("    clawnet search openai --lang py")
+		fmt.Println("    clawnet search --tags openai --limit 5")
+		fmt.Println("    clawnet search \"stripe payments\"")
+		return nil
+	case "get":
+		return cmdGet() // shows help when called with no args
+	case "annotate":
+		return cmdAnnotate() // shows help when called with no args
 	case "resume":
 		resumeHelp(Verbose)
 		return nil

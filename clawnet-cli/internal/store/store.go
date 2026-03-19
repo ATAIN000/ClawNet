@@ -400,6 +400,27 @@ func (s *Store) migrate() error {
 			created_at TEXT NOT NULL DEFAULT (datetime('now'))
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_pending_ops_status ON pending_ops(status)`,
+
+		// Phase I — Knowledge Mesh: type + source columns for Context Hub sync
+		`ALTER TABLE knowledge ADD COLUMN type TEXT NOT NULL DEFAULT 'doc'`,
+		`ALTER TABLE knowledge ADD COLUMN source TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE knowledge ADD COLUMN source_path TEXT NOT NULL DEFAULT ''`,
+		`CREATE INDEX IF NOT EXISTS idx_knowledge_source ON knowledge(source)`,
+		`CREATE INDEX IF NOT EXISTS idx_knowledge_type ON knowledge(type)`,
+
+		// Phase I-1b — content_hash for search-time dedup across multiple nodes
+		`ALTER TABLE knowledge ADD COLUMN content_hash TEXT NOT NULL DEFAULT ''`,
+		`CREATE INDEX IF NOT EXISTS idx_knowledge_content_hash ON knowledge(content_hash)`,
+
+		// Phase I-1b — Knowledge annotations (local-only, chub-compatible)
+		`CREATE TABLE IF NOT EXISTS knowledge_annotations (
+			id           TEXT PRIMARY KEY,
+			knowledge_id TEXT NOT NULL,
+			note         TEXT NOT NULL,
+			created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_knowledge_annotations_kid ON knowledge_annotations(knowledge_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_knowledge_source_path ON knowledge(source_path)`,
 	}
 
 	for _, m := range migrations {

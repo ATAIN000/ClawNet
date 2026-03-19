@@ -486,9 +486,19 @@ func (d *Daemon) handleTaskApprove(w http.ResponseWriter, r *http.Request) {
 		// Get updated balances
 		if workerProfile, err := d.Store.GetEnergyProfile(t.AssignedTo); err == nil && workerProfile != nil {
 			receipt["worker_new_balance"] = workerProfile.Energy
+			receipt["total_earned"] = workerProfile.TotalEarned
 		}
 		if authorProfile, err := d.Store.GetEnergyProfile(t.AuthorID); err == nil && authorProfile != nil {
 			receipt["publisher_new_balance"] = authorProfile.Energy
+		}
+		// Reputation percentile + rank change for worker
+		if t.AssignedTo != "" {
+			if rep, err := d.Store.GetReputation(t.AssignedTo); err == nil && rep != nil {
+				receipt["worker_reputation"] = rep.Score
+				if pct, err := d.Store.ReputationPercentile(t.AssignedTo); err == nil {
+					receipt["percentile"] = pct
+				}
+			}
 		}
 	}
 

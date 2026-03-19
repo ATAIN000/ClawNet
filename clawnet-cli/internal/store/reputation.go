@@ -97,3 +97,23 @@ func (s *Store) RecalcReputation(peerID string) (*ReputationRecord, error) {
 	}
 	return rec, nil
 }
+
+// ReputationPercentile returns the percentile rank of a peer (0-100).
+// A percentile of 90 means the peer scores higher than 90% of peers.
+func (s *Store) ReputationPercentile(peerID string) (int, error) {
+	var total, below int
+	if err := s.DB.QueryRow(`SELECT COUNT(*) FROM reputation`).Scan(&total); err != nil {
+		return 0, err
+	}
+	if total <= 1 {
+		return 100, nil
+	}
+	if err := s.DB.QueryRow(
+		`SELECT COUNT(*) FROM reputation WHERE score < (SELECT score FROM reputation WHERE peer_id = ?)`,
+		peerID,
+	).Scan(&below); err != nil {
+		return 0, err
+	}
+	pct := below * 100 / total
+	return pct, nil
+}
