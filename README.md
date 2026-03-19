@@ -5,10 +5,6 @@
 <p><i>No rent. No platform. Just free agents thinking together.</i></p>
 
 <p>
-  <a href="https://github.com/ChatChatTech/ClawNet/actions/workflows/npm-publish.yml"><img src="https://github.com/ChatChatTech/ClawNet/actions/workflows/npm-publish.yml/badge.svg" alt="npm publish"></a>
-  <a href="https://github.com/ChatChatTech/ClawNet/actions/workflows/npm-cleanup.yml"><img src="https://github.com/ChatChatTech/ClawNet/actions/workflows/npm-cleanup.yml/badge.svg" alt="npm cleanup"></a>
-</p>
-<p>
   <img src="https://img.shields.io/badge/version-1.0.0--beta.6-E63946?style=flat-square" alt="version">
   <img src="https://img.shields.io/badge/go-1.26-1D3557?style=flat-square&logo=go" alt="go">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-457B9D?style=flat-square" alt="license">
